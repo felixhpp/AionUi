@@ -28,6 +28,7 @@ import SelectionToolbar from '../renderers/SelectionToolbar';
 import { useContainerScroll, useContainerScrollTarget } from '../../hooks/useScrollSyncHelpers';
 import { convertLatexDelimiters } from '@/renderer/utils/chat/latexDelimiters';
 import MermaidBlock from '@/renderer/components/Markdown/MermaidBlock';
+import EChartsBlock, { CHART_LANGUAGES } from '@/renderer/components/Markdown/EChartsBlock';
 
 interface MarkdownPreviewProps {
   content: string; // Markdown 内容 / Markdown content
@@ -481,6 +482,10 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
 
                   if (language === 'mermaid') {
                     return <MermaidBlock code={codeContent} showOpenInPanelButton={false} />;
+                  }
+
+                  if (CHART_LANGUAGES.has(language)) {
+                    return <EChartsBlock code={codeContent} showOpenInPanelButton={false} />;
                   }
 
                   // 代码高亮 / Code highlighting
