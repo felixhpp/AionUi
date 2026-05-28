@@ -9,6 +9,48 @@
   box-shadow: none;
 }
 
+.chat-header__nav-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chat-header__nav-btn:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.chat-header__nav-btn:active {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+[data-theme='dark'] .chat-header__nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .chat-header__nav-btn:active {
+  background-color: rgba(255, 255, 255, 0.16);
+}
+
+.chat-header__nav-btn:disabled,
+.chat-header__nav-btn[disabled] {
+  opacity: 0.35;
+  cursor: default;
+  background-color: transparent;
+}
+
+.chat-header__nav-btn:disabled:hover,
+.chat-header__nav-btn[disabled]:hover {
+  background-color: transparent;
+}
+
 .chat-layout-header--glass {
   position: relative;
   isolation: isolate;

@@ -364,9 +364,9 @@ const Layout: React.FC<{
 
   const siderWidth = isMobile
     ? Math.max(
-        MOBILE_SIDER_MIN_WIDTH,
-        Math.min(MOBILE_SIDER_MAX_WIDTH, Math.round(viewportWidth * MOBILE_SIDER_WIDTH_RATIO))
-      )
+      MOBILE_SIDER_MIN_WIDTH,
+      Math.min(MOBILE_SIDER_MAX_WIDTH, Math.round(viewportWidth * MOBILE_SIDER_WIDTH_RATIO))
+    )
     : DEFAULT_SIDER_WIDTH;
   useEffect(() => {
     collapsedRef.current = collapsed;
@@ -423,23 +423,23 @@ const Layout: React.FC<{
 
   const siderStyle = isMobile
     ? {
-        position: 'fixed' as const,
-        left: 0,
-        zIndex: 100,
-        transform: collapsed ? 'translateX(-100%)' : 'translateX(0)',
-        transition: 'none',
-        pointerEvents: collapsed ? ('none' as const) : ('auto' as const),
-      }
+      position: 'fixed' as const,
+      left: 0,
+      zIndex: 100,
+      transform: collapsed ? 'translateX(-100%)' : 'translateX(0)',
+      transition: 'none',
+      pointerEvents: collapsed ? ('none' as const) : ('auto' as const),
+    }
     : {
-        position: 'relative' as const,
-        overflow: 'visible' as const,
-      };
+      position: 'relative' as const,
+      overflow: 'visible' as const,
+    };
 
   return (
     <LayoutContext.Provider value={{ isMobile, siderCollapsed: collapsed, setSiderCollapsed: setCollapsed }}>
       <NavigationHistoryProvider>
         <div className='app-shell flex flex-col size-full min-h-0'>
-          <Titlebar workspaceAvailable={workspaceAvailable} />
+          {isElectronDesktop() && <Titlebar workspaceAvailable={workspaceAvailable} />}
           {/* 移动端左侧边栏蒙板 / Mobile left sider backdrop */}
           {isMobile && !collapsed && (
             <div className='fixed inset-0 bg-black/30 z-90' onClick={() => setCollapsed(true)} aria-hidden='true' />
@@ -505,17 +505,27 @@ const Layout: React.FC<{
                     <SidebarIcon size={18} strokeWidth={2.5} />
                   </button>
                 )}
-                {/* 侧栏折叠改由标题栏统一控制 / Sidebar folding handled by Titlebar toggle */}
+                {!isElectronDesktop() && !isMobile && !collapsed && (
+                  <button
+                    type='button'
+                    className='app-titlebar__button ml-auto'
+                    onClick={() => setCollapsed(true)}
+                    title='Collapse sidebar'
+                    aria-label='Collapse sidebar'
+                  >
+                    <SidebarIcon size={18} strokeWidth={2.5} />
+                  </button>
+                )}
               </ArcoLayout.Header>
               <ArcoLayout.Content className='pt-0 px-8px pb-0 layout-sider-content'>
                 {React.isValidElement(sider)
                   ? React.cloneElement(sider, {
-                      onSessionClick: () => {
-                        cleanupSiderTooltips();
-                        if (isMobile) setCollapsed(true);
-                      },
-                      collapsed,
-                    } as any)
+                    onSessionClick: () => {
+                      cleanupSiderTooltips();
+                      if (isMobile) setCollapsed(true);
+                    },
+                    collapsed,
+                  } as any)
                   : sider}
               </ArcoLayout.Content>
               {!isMobile && (
@@ -531,18 +541,28 @@ const Layout: React.FC<{
             </ArcoLayout.Sider>
 
             <ArcoLayout.Content
-              className={'bg-1 layout-content flex flex-col min-h-0'}
+              className={'bg-1 layout-content flex flex-col min-h-0 relative'}
               onClick={() => {
                 if (isMobile && !collapsed) setCollapsed(true);
               }}
               style={
                 isMobile
                   ? {
-                      width: '100%',
-                    }
+                    width: '100%',
+                  }
                   : undefined
               }
             >
+              {!isElectronDesktop() && collapsed && !isMobile && (
+                <button
+                  type='button'
+                  className='webui-sider-expand-toggle'
+                  onClick={() => setCollapsed(false)}
+                  aria-label='Expand sidebar'
+                >
+                  <SidebarIcon size={18} strokeWidth={2.5} />
+                </button>
+              )}
               <Outlet />
               {directorySelectionContextHolder}
               <PwaPullToRefresh />

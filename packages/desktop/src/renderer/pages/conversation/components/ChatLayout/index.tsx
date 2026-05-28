@@ -2,6 +2,7 @@ import { AgentLogoIcon } from '@/renderer/components/agent/AgentBadge';
 import type { PresetAssistantInfo } from '@/renderer/hooks/agent/usePresetAssistantInfo';
 import FlexFullContainer from '@/renderer/components/layout/FlexFullContainer';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
+import { useNavigationHistory } from '@/renderer/hooks/context/NavigationHistoryContext';
 import { useResizableSplit } from '@/renderer/hooks/ui/useResizableSplit';
 import ChatTitleEditor from '@/renderer/pages/conversation/components/ChatTitleEditor';
 import MobileWorkspaceOverlay from './MobileWorkspaceOverlay';
@@ -14,6 +15,7 @@ import { useWorkspaceCollapse } from '@/renderer/pages/conversation/hooks/useWor
 import { PreviewPanel, usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { dispatchWorkspaceToggleEvent } from '@/renderer/utils/workspace/workspaceEvents';
 import { useConversationAgents } from '@/renderer/pages/conversation/hooks/useConversationAgents';
+import { isElectronDesktop } from '@/renderer/utils/platform';
 import classNames from 'classnames';
 import { isMacEnvironment, isWindowsEnvironment } from '@/renderer/pages/conversation/utils/detectPlatform';
 import {
@@ -24,10 +26,30 @@ import {
   calcLayoutMetrics,
 } from '@/renderer/pages/conversation/utils/layoutCalc';
 import { Layout as ArcoLayout } from '@arco-design/web-react';
-import { ExpandLeft, ExpandRight } from '@icon-park/react';
+import { ArrowLeft, ArrowRight, ExpandLeft, ExpandRight } from '@icon-park/react';
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './chat-layout.css';
+
+const SidebarIcon: React.FC<{ size?: number; strokeWidth?: number }> = ({ size = 18, strokeWidth = 4 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox='0 0 48 48'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth={strokeWidth}
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    aria-hidden='true'
+    focusable='false'
+  >
+    <rect x='6' y='10' width='36' height='28' rx='5' />
+    <line x1='18' y1='10' x2='18' y2='38' />
+  </svg>
+);
 
 // headerExtra allows injecting custom actions (e.g., model picker) into the header's right area
 const ChatLayout: React.FC<{
@@ -68,6 +90,11 @@ const ChatLayout: React.FC<{
   const isWindowsRuntime = isWindowsEnvironment();
   const isDesktop = !layout?.isMobile;
   const isMobile = Boolean(layout?.isMobile);
+  const isWebui = !isElectronDesktop();
+  const navigationHistory = useNavigationHistory();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Preview panel state
   const { isOpen: isPreviewOpen } = usePreviewContext();
@@ -200,6 +227,30 @@ const ChatLayout: React.FC<{
         'min-h-44px flex items-center justify-between px-16px pt-8px pb-10px gap-16px !bg-1 chat-layout-header chat-layout-header--glass overflow-hidden'
       )}
     >
+      {isWebui && navigationHistory && (
+        <div className='flex items-center gap-2px shrink-0'>
+          <button
+            type='button'
+            className='chat-header__nav-btn'
+            onClick={() => navigationHistory.back()}
+            disabled={!navigationHistory.canBack}
+            aria-label={t('common.historyBack', { defaultValue: 'Back' })}
+            title={t('common.historyBack', { defaultValue: 'Back' })}
+          >
+            <ArrowLeft theme='outline' size={16} fill='currentColor' strokeWidth={2.5} />
+          </button>
+          <button
+            type='button'
+            className='chat-header__nav-btn'
+            onClick={() => navigationHistory.forward()}
+            disabled={!navigationHistory.canForward}
+            aria-label={t('common.forward', { defaultValue: 'Forward' })}
+            title={t('common.forward', { defaultValue: 'Forward' })}
+          >
+            <ArrowRight theme='outline' size={16} fill='currentColor' strokeWidth={2.5} />
+          </button>
+        </div>
+      )}
       <FlexFullContainer className='h-full min-w-0' containerClassName='flex items-center'>
         <ChatTitleEditor
           editingTitle={editingTitle}
@@ -227,7 +278,51 @@ const ChatLayout: React.FC<{
       </FlexFullContainer>
       <div className='flex items-center gap-12px shrink-0'>
         {props.headerExtra}
-        {isWindowsRuntime && workspaceEnabled && (
+        {(isWindowsRuntime || isWebui) && workspaceEnabled && (
+          <button
+            type='button'
+            className='workspace-header__toggle'
+            aria-label='Toggle workspace'
+            onClick={() => dispatchWorkspaceToggleEvent()}
+          >
+            {rightSiderCollapsed ? <ExpandRight size={16} /> : <ExpandLeft size={16} />}
+          </button>
+        )}
+      </div>
+    </ArcoLayout.Header>
+  );
+
+  const isSettingsRoute = typeof location !== 'undefined' && location.pathname.startsWith('/settings');
+  const siderTooltip = layout?.siderCollapsed
+    ? t('common.expandMore', { defaultValue: 'Expand sidebar' })
+    : t('common.collapse', { defaultValue: 'Collapse sidebar' });
+
+  const webuiMobileHeader = (
+    <ArcoLayout.Header className='chat-layout-header--mobile-unified min-h-44px flex items-center justify-between px-8px pt-4px pb-6px gap-8px !bg-1'>
+      <button
+        type='button'
+        className='workspace-header__toggle shrink-0'
+        onClick={() => {
+          if (isSettingsRoute) {
+            void navigate(-1);
+          } else if (layout?.setSiderCollapsed) {
+            layout.setSiderCollapsed(!layout.siderCollapsed);
+          }
+        }}
+        aria-label={isSettingsRoute ? t('common.back', { defaultValue: 'Back' }) : siderTooltip}
+      >
+        {isSettingsRoute ? (
+          <ArrowLeft theme='outline' size={16} fill='currentColor' />
+        ) : (
+          <SidebarIcon size={16} strokeWidth={2.5} />
+        )}
+      </button>
+      <span className='flex-1 min-w-0 truncate text-14px font-semibold text-t-primary px-4px'>
+        {props.title || 'AionUi'}
+      </span>
+      <div className='flex items-center gap-4px shrink-0'>
+        {props.headerExtra}
+        {workspaceEnabled && (
           <button
             type='button'
             className='workspace-header__toggle'
@@ -244,7 +339,9 @@ const ChatLayout: React.FC<{
   const headerBlock = (
     <>
       {layout?.isMobile
-        ? mobileActionsSlot && props.headerExtra && createPortal(props.headerExtra, mobileActionsSlot)
+        ? isWebui
+          ? webuiMobileHeader
+          : mobileActionsSlot && props.headerExtra && createPortal(props.headerExtra, mobileActionsSlot)
         : desktopHeader}
       {props.tabsSlot}
     </>

@@ -261,3 +261,30 @@
     line-height: 20px !important;
   }
 }
+
+.webui-sider-expand-toggle {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--bg-2);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.webui-sider-expand-toggle:hover {
+  background-color: var(--fill-3);
+}
+
+.webui-sider-expand-toggle:active {
+  background-color: var(--fill-4);
+}
