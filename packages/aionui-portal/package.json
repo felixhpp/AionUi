@@ -1,0 +1,14 @@
+{
+  "name": "aionui-portal",
+  "version": "1.0.0",
+  "description": "AIonUI Multi-tenant Container Portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "dockerode": "^4.0.2",
+    "express": "^4.19.2"
+  }
+}

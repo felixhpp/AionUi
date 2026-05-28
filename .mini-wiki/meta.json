@@ -1,0 +1,17 @@
+generator_version: "3.0.6"
+quality_standard: "professional-v2"
+generated_at: "2026-05-28T10:35:00Z"
+project: AionUi
+modules:
+  architecture:
+    version: "1.0.0"
+    quality: "professional"
+    sections: 16
+    has_diagrams: 5
+    last_updated: "2026-05-28"
+  core:
+    version: "1.0.0"
+    quality: "standard"
+    sections: 10
+    has_diagrams: 3
+    last_updated: "2026-05-28"

@@ -1,0 +1,29 @@
+generator:
+  language: zh
+  detail_level: detailed
+  include_diagrams: true
+  include_examples: true
+  link_to_source: true
+  min_sections: 10
+
+diagrams:
+  architecture_style: flowchart TB
+  dataflow_style: sequenceDiagram
+  use_colors: true
+
+linking:
+  auto_cross_links: true
+  generate_doc_map: true
+  generate_dependency_graph: true
+
+domain_hierarchy:
+  enabled: true
+  auto_detect: true
+  language: zh
+
+exclude:
+  - node_modules
+  - dist
+  - "*.test.ts"
+  - out
+  - build
