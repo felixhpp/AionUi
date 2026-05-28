@@ -124,7 +124,7 @@ prek run --from-ref origin/main --to-ref HEAD
 
 ### 提交与 PR 格式
 
-提交格式：`<type>(<scope>): <subject>`，使用英文。类型包括：feat、fix、refactor、chore、docs、test、style、perf。
+提交格式：`<type>(<scope>): <subject>`，使用中文。类型包括：feat、fix、refactor、chore、docs、test、style、perf。
 
 **绝对不要添加 AI 签名**（如 Co-Authored-By、Generated with 等）。
 

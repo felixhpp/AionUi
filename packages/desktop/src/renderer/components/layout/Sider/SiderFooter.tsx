@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Tooltip } from '@arco-design/web-react';
-import { ArrowCircleLeft, CloseOne, Moon, SettingTwo, SunOne } from '@icon-park/react';
+import { Avatar, Dropdown, Menu, Tooltip } from '@arco-design/web-react';
+import { ArrowCircleLeft, CloseOne, Down, Moon, SettingTwo, SunOne } from '@icon-park/react';
 import classNames from 'classnames';
-import { iconColors } from '@renderer/styles/colors';
+import type { AuthUser } from '@renderer/hooks/context/AuthContext';
 import type { SiderTooltipProps } from '@renderer/utils/ui/siderTooltip';
 
 interface SiderFooterProps {
@@ -22,7 +22,150 @@ interface SiderFooterProps {
   onThemeToggle: () => void;
   showLogout?: boolean;
   onLogoutClick?: () => void;
+  user?: AuthUser | null;
 }
+
+type UserMenuProps = {
+  collapsed: boolean;
+  theme: string;
+  isMobile: boolean;
+  user: AuthUser | null;
+  onSettingsClick: () => void;
+  onThemeToggle: () => void;
+  onLogoutClick: () => void;
+};
+
+const UserMenu: React.FC<UserMenuProps> = ({
+  collapsed,
+  theme,
+  isMobile,
+  user,
+  onSettingsClick,
+  onThemeToggle,
+  onLogoutClick,
+}) => {
+  const { t } = useTranslation();
+  const themeLabel = theme === 'dark' ? t('settings.lightMode') : t('settings.darkMode');
+  const username = user?.username ?? '';
+  const initial = username.charAt(0).toUpperCase() || 'U';
+
+  const handleMenuClick = useCallback(
+    (key: string) => {
+      if (key === 'settings') onSettingsClick();
+      else if (key === 'theme') onThemeToggle();
+      else if (key === 'logout') onLogoutClick();
+    },
+    [onSettingsClick, onThemeToggle, onLogoutClick],
+  );
+
+  const menu = (
+    <Menu
+      onClickMenuItem={handleMenuClick}
+      style={{
+        borderRadius: 8,
+        padding: '4px 0',
+        minWidth: 220,
+      }}
+    >
+      <Menu.Item key='settings'>
+        <div className='flex items-center gap-8px'>
+          <SettingTwo
+            theme='outline'
+            size='16'
+            fill='currentColor'
+            className='block leading-none'
+            style={{ lineHeight: 0 }}
+          />
+          <span>{t('common.settings')}</span>
+        </div>
+      </Menu.Item>
+      <Menu.Item key='theme'>
+        <div className='flex items-center gap-8px'>
+          {theme === 'dark' ? (
+            <SunOne
+              theme='outline'
+              size='16'
+              fill='currentColor'
+              className='block leading-none'
+              style={{ lineHeight: 0 }}
+            />
+          ) : (
+            <Moon
+              theme='outline'
+              size='16'
+              fill='currentColor'
+              className='block leading-none'
+              style={{ lineHeight: 0 }}
+            />
+          )}
+          <span>{themeLabel}</span>
+        </div>
+      </Menu.Item>
+      <Menu.Item key='logout' style={{ color: 'var(--color-danger-6)' }}>
+        <div className='flex items-center gap-8px'>
+          <CloseOne
+            theme='outline'
+            size='16'
+            fill='currentColor'
+            className='block leading-none'
+            style={{ lineHeight: 0 }}
+          />
+          <span>{t('settings.googleLogout')}</span>
+        </div>
+      </Menu.Item>
+    </Menu>
+  );
+
+  if (collapsed) {
+    return (
+      <Dropdown droplist={menu} trigger='click' position='tr' unmountOnExit>
+        <div
+          className={classNames(
+            'w-full h-34px flex items-center justify-center cursor-pointer transition-colors rd-8px hover:bg-fill-3 active:bg-fill-4',
+            isMobile && 'sider-footer-btn-mobile',
+          )}
+        >
+          <Avatar
+            size={24}
+            className='border-none'
+            style={{ backgroundColor: 'var(--color-fill-3)', fontSize: 12, fontWeight: 600 }}
+          >
+            {initial}
+          </Avatar>
+        </div>
+      </Dropdown>
+    );
+  }
+
+  return (
+    <Dropdown droplist={menu} trigger='click' position='top' unmountOnExit>
+      <div
+        className={classNames(
+          'h-34px flex-1 min-w-0 flex items-center gap-8px pl-10px pr-8px rd-0.5rem cursor-pointer transition-colors hover:bg-fill-3 active:bg-fill-4',
+          isMobile && 'sider-footer-btn-mobile',
+        )}
+      >
+        <Avatar
+          size={24}
+          className='border-none shrink-0'
+          style={{ backgroundColor: 'var(--color-fill-3)', fontSize: 12, fontWeight: 600 }}
+        >
+          {initial}
+        </Avatar>
+        <span className='text-t-primary text-14px font-[500] leading-24px truncate flex-1 min-w-0'>
+          {username}
+        </span>
+        <Down
+          theme='outline'
+          size='14'
+          fill='currentColor'
+          className='block leading-none shrink-0 text-t-secondary'
+          style={{ lineHeight: 0 }}
+        />
+      </div>
+    </Dropdown>
+  );
+};
 
 const SiderFooter: React.FC<SiderFooterProps> = ({
   isMobile,
@@ -34,8 +177,58 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
   onThemeToggle,
   showLogout = false,
   onLogoutClick,
+  user,
 }) => {
   const { t } = useTranslation();
+
+  const showThemeToggle = isSettings && !collapsed;
+  const themeTooltip = theme === 'dark' ? t('settings.lightMode') : t('settings.darkMode');
+
+  if (showLogout && onLogoutClick) {
+    if (isSettings) {
+      return (
+        <div className='shrink-0 sider-footer mt-auto pt-8px pb-8px border-t border-solid border-[var(--color-border-2)] border-l-0 border-r-0 border-b-0'>
+          <Tooltip {...siderTooltipProps} content={t('common.back')} position='right'>
+            <div
+              onClick={onSettingsClick}
+              className={classNames(
+                'group h-34px flex items-center rd-0.5rem cursor-pointer transition-colors bg-fill-3',
+                collapsed ? 'w-full justify-center' : 'flex-1 min-w-0 justify-start gap-8px pl-10px pr-8px',
+                isMobile && 'sider-footer-btn-mobile',
+              )}
+            >
+              <span className='size-22px flex items-center justify-center shrink-0 text-t-secondary'>
+                <ArrowCircleLeft
+                  theme='outline'
+                  size='16'
+                  fill='currentColor'
+                  className='block leading-none'
+                  style={{ lineHeight: 0 }}
+                />
+              </span>
+              <span className='collapsed-hidden text-t-primary text-14px font-[500] leading-24px truncate'>
+                {t('common.back')}
+              </span>
+            </div>
+          </Tooltip>
+        </div>
+      );
+    }
+
+    return (
+      <div className='shrink-0 sider-footer mt-auto pt-8px pb-8px border-t border-solid border-[var(--color-border-2)] border-l-0 border-r-0 border-b-0'>
+        <UserMenu
+          collapsed={collapsed}
+          theme={theme}
+          isMobile={isMobile}
+          user={user ?? null}
+          onSettingsClick={onSettingsClick}
+          onThemeToggle={onThemeToggle}
+          onLogoutClick={onLogoutClick}
+        />
+      </div>
+    );
+  }
 
   const settingsIcon = isSettings ? (
     <ArrowCircleLeft
@@ -54,8 +247,6 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
       style={{ lineHeight: 0 }}
     />
   );
-  const showThemeToggle = isSettings && !collapsed;
-  const themeTooltip = theme === 'dark' ? t('settings.lightMode') : t('settings.darkMode');
 
   return (
     <div className='shrink-0 sider-footer mt-auto pt-8px pb-8px border-t border-solid border-[var(--color-border-2)] border-l-0 border-r-0 border-b-0'>
@@ -70,7 +261,7 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
               {
                 'bg-fill-3': isSettings,
                 'hover:bg-fill-3 active:bg-fill-4': !isSettings,
-              }
+              },
             )}
           >
             <span className='size-22px flex items-center justify-center shrink-0 text-t-secondary'>{settingsIcon}</span>
@@ -79,39 +270,13 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
             </span>
           </div>
         </Tooltip>
-        {showLogout && onLogoutClick && (
-          <Tooltip {...siderTooltipProps} content={t('settings.googleLogout')} position='right'>
-            <div
-              onClick={onLogoutClick}
-              className={classNames(
-                'h-32px flex items-center rd-0.5rem cursor-pointer transition-colors hover:bg-[rgba(var(--primary-6),0.14)] active:bg-fill-2',
-                collapsed ? 'w-full justify-center' : 'flex-1 min-w-0 justify-start gap-10px px-14px',
-                isMobile && 'sider-footer-btn-mobile'
-              )}
-            >
-              <span className='size-20px flex items-center justify-center shrink-0'>
-                <CloseOne
-                  theme='outline'
-                  size='16'
-                  fill={iconColors.primary}
-                  className='block leading-none'
-                  style={{ lineHeight: 0 }}
-                />
-              </span>
-              <span className='collapsed-hidden text-t-primary text-14px font-[500] leading-24px truncate'>
-                {t('settings.googleLogout')}
-              </span>
-            </div>
-          </Tooltip>
-        )}
-        {/* Theme toggle — lightweight icon button, only while inside Settings page (not in collapsed mode) */}
         {showThemeToggle && (
           <Tooltip {...siderTooltipProps} content={themeTooltip} position='right'>
             <div
               onClick={onThemeToggle}
               className={classNames(
                 'h-32px w-40px shrink-0 flex items-center justify-center cursor-pointer rd-0.5rem transition-colors text-t-secondary hover:bg-fill-2 hover:text-t-primary active:bg-fill-3',
-                isMobile && 'sider-footer-btn-mobile'
+                isMobile && 'sider-footer-btn-mobile',
               )}
               aria-label={themeTooltip}
             >
