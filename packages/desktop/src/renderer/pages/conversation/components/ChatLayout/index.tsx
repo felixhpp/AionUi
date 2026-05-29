@@ -227,28 +227,43 @@ const ChatLayout: React.FC<{
         'min-h-44px flex items-center justify-between px-16px pt-8px pb-10px gap-16px !bg-1 chat-layout-header chat-layout-header--glass overflow-hidden'
       )}
     >
-      {isWebui && navigationHistory && (
+      {isWebui && (
         <div className='flex items-center gap-2px shrink-0'>
-          <button
-            type='button'
-            className='chat-header__nav-btn'
-            onClick={() => navigationHistory.back()}
-            disabled={!navigationHistory.canBack}
-            aria-label={t('common.historyBack', { defaultValue: 'Back' })}
-            title={t('common.historyBack', { defaultValue: 'Back' })}
-          >
-            <ArrowLeft theme='outline' size={16} fill='currentColor' strokeWidth={2.5} />
-          </button>
-          <button
-            type='button'
-            className='chat-header__nav-btn'
-            onClick={() => navigationHistory.forward()}
-            disabled={!navigationHistory.canForward}
-            aria-label={t('common.forward', { defaultValue: 'Forward' })}
-            title={t('common.forward', { defaultValue: 'Forward' })}
-          >
-            <ArrowRight theme='outline' size={16} fill='currentColor' strokeWidth={2.5} />
-          </button>
+          {layout?.siderCollapsed && layout.setSiderCollapsed && (
+            <button
+              type='button'
+              className='chat-header__nav-btn'
+              onClick={() => layout?.setSiderCollapsed?.(false)}
+              aria-label={t('common.expandMore', { defaultValue: 'Expand sidebar' })}
+              title={t('common.expandMore', { defaultValue: 'Expand sidebar' })}
+            >
+              <SidebarIcon size={16} strokeWidth={2.5} />
+            </button>
+          )}
+          {navigationHistory && (
+            <>
+              <button
+                type='button'
+                className='chat-header__nav-btn'
+                onClick={() => navigationHistory.back()}
+                disabled={!navigationHistory.canBack}
+                aria-label={t('common.historyBack', { defaultValue: 'Back' })}
+                title={t('common.historyBack', { defaultValue: 'Back' })}
+              >
+                <ArrowLeft theme='outline' size={16} fill='currentColor' strokeWidth={2.5} />
+              </button>
+              <button
+                type='button'
+                className='chat-header__nav-btn'
+                onClick={() => navigationHistory.forward()}
+                disabled={!navigationHistory.canForward}
+                aria-label={t('common.forward', { defaultValue: 'Forward' })}
+                title={t('common.forward', { defaultValue: 'Forward' })}
+              >
+                <ArrowRight theme='outline' size={16} fill='currentColor' strokeWidth={2.5} />
+              </button>
+            </>
+          )}
         </div>
       )}
       <FlexFullContainer className='h-full min-w-0' containerClassName='flex items-center'>

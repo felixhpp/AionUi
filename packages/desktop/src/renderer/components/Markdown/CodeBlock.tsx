@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { vs, vs2015 } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { copyText } from '@/renderer/utils/ui/clipboard';
+import EChartsBlock, { CHART_LANGUAGES } from './EChartsBlock';
 import MermaidBlock from './MermaidBlock';
 import { formatCode, getDiffLineStyle } from './markdownUtils';
 
@@ -78,6 +79,10 @@ function CodeBlock(props: CodeBlockProps) {
 
   if (language === 'mermaid') {
     return <MermaidBlock code={formatCode(children)} style={props.codeStyle} />;
+  }
+
+  if (CHART_LANGUAGES.has(language)) {
+    return <EChartsBlock code={formatCode(children)} style={props.codeStyle} />;
   }
 
   // Inline code (single line)
@@ -194,11 +199,11 @@ function CodeBlock(props: CodeBlockProps) {
             lineProps={
               isDiff
                 ? (lineNumber: number) => ({
-                    style: {
-                      display: 'block',
-                      ...getDiffLineStyle(diffLines[lineNumber - 1] || '', isDark),
-                    },
-                  })
+                  style: {
+                    display: 'block',
+                    ...getDiffLineStyle(diffLines[lineNumber - 1] || '', isDark),
+                  },
+                })
                 : undefined
             }
             customStyle={{

@@ -24,6 +24,7 @@ import OfficeDocPreview from '../viewers/OfficeDocViewer';
 import PptViewer from '../viewers/PptViewer';
 import TextEditor from '../editors/TextEditor';
 import URLViewer from '../viewers/URLViewer';
+import ChartViewer from '../viewers/ChartViewer';
 import {
   PreviewTabs,
   PreviewToolbar,
@@ -661,6 +662,8 @@ const PreviewPanel: React.FC = () => {
     } else if (content_type === 'url') {
       // URL 预览模式 / URL preview mode
       return <URLViewer url={content} title={metadata?.title} />;
+    } else if (content_type === 'chart') {
+      return <ChartViewer content={content} />;
     }
 
     return null;

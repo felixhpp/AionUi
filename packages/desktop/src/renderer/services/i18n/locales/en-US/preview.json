@@ -56,6 +56,9 @@
   "noTabs": "No tabs open",
   "openInPanelTooltip": "View in preview panel",
   "mermaidTitle": "Mermaid Diagram",
+  "chartTitle": "Chart",
+  "chartParseError": "Invalid chart configuration",
+  "chartEmptyContent": "Chart configuration is empty",
   "largeTextTruncatedHint": "Large file preview mode: showing first {{count}} characters for performance.",
   "truncatedBanner": "Preview content was truncated. Click download to view the full file.",
   "errors": {

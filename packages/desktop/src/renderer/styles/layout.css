@@ -12,12 +12,15 @@
 .sider-action-btn {
   background-color: var(--bg-2);
 }
+
 .sider-action-btn:hover {
   background-color: var(--bg-1);
 }
+
 [data-theme='dark'] .sider-action-btn {
   background-color: var(--bg-5);
 }
+
 [data-theme='dark'] .sider-action-btn:hover {
   background-color: var(--bg-6);
 }
@@ -41,7 +44,7 @@
 /* Arco Layout inner container needs flex layout so Header + Content + Footer
    stack vertically and Content fills the remaining space (avoids a fixed
    calc() that breaks when header height changes). */
-.layout-sider > .arco-layout-sider-children {
+.layout-sider>.arco-layout-sider-children {
   display: flex !important;
   flex-direction: column !important;
   flex: 1 !important;
@@ -112,7 +115,8 @@
 }
 
 .chat-history__section {
-  max-height: 60px; /* Increase height for zoom scaling to prevent text clipping */
+  max-height: 60px;
+  /* Increase height for zoom scaling to prevent text clipping */
 }
 
 .chat-history--collapsed .chat-history__placeholder,
@@ -137,6 +141,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .chat-history,
   .chat-history__item,
   .chat-history__item-name,
@@ -171,7 +176,7 @@
 }
 
 /* Grouped inputs should share one surface across the field and its add-ons. */
-.arco-input-inner-wrapper > .arco-input,
+.arco-input-inner-wrapper>.arco-input,
 .arco-input-group-addafter .arco-input,
 .arco-input-group-addbefore .arco-input,
 .arco-input-inner-wrapper .arco-input-group-prefix,
@@ -287,4 +292,8 @@
 
 .webui-sider-expand-toggle:active {
   background-color: var(--fill-4);
+}
+
+.layout-content:has(.chat-layout-header)>.webui-sider-expand-toggle {
+  display: none;
 }

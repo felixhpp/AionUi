@@ -166,7 +166,7 @@ const MessageText: React.FC<{ message: IMessageText }> = ({ message }) => {
 
   return (
     <>
-      <div className={classNames('min-w-0 flex flex-col group', isUserMessage ? 'items-end' : 'items-start')}>
+      <div className={classNames('w-full min-w-0 flex flex-col group', isUserMessage ? 'items-end' : 'items-start')}>
         {cronMeta && <MessageCronBadge meta={cronMeta} />}
         {isTeammateMessage && senderName && (
           <div className='flex items-center gap-6px mb-4px'>

@@ -70,6 +70,28 @@ vi.mock('react-i18next', () => ({
 }));
 
 describe('MessageText attachment paths', () => {
+  it('lets assistant message content stretch to the full message row width', () => {
+    const message: IMessageText = {
+      id: 'msg-width',
+      msg_id: 'msg-width',
+      conversation_id: 'conv-1',
+      type: 'text',
+      position: 'left',
+      createdAt: Date.now(),
+      content: {
+        content: '```chart\n{"series":[{"type":"bar","data":[1]}]}\n```',
+      },
+    };
+
+    const { container } = render(
+      <ConversationProvider value={{ conversationId: 'conv-1', workspace: '/workspace/demo', type: 'acp' }}>
+        <MessageText message={message} />
+      </ConversationProvider>
+    );
+
+    expect(container.firstElementChild).toHaveClass('w-full');
+  });
+
   it('resolves relative attachment paths against the current workspace before previewing', () => {
     const message: IMessageText = {
       id: 'msg-1',
