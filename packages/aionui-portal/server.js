@@ -5,7 +5,15 @@ const { getPortalConfig } = require('./src/config');
 const { createPortalRepository } = require('./src/repository');
 
 const config = getPortalConfig();
-const docker = new Docker({ socketPath: config.dockerSocketPath });
+const docker = new Docker(
+  config.dockerHost
+    ? {
+        host: config.dockerHost,
+        port: config.dockerPort,
+        protocol: config.dockerProtocol,
+      }
+    : { socketPath: config.dockerSocketPath }
+);
 const repository = createPortalRepository({
   databasePath: config.databasePath,
   defaultUsers: config.defaultUsers,

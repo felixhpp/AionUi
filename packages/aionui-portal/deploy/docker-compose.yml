@@ -1,0 +1,76 @@
+services:
+  traefik:
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/traefik:v3.7.1
+    command:
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --providers.docker.endpoint=tcp://docker-socket-proxy:2375
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - docker-socket-proxy
+    networks:
+      - aionui-control
+      - aionui-runtime
+
+  docker-socket-proxy:
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/tecnativa/docker-socket-proxy:v0.4.2
+    environment:
+      CONTAINERS: 1
+      IMAGES: 1
+      INFO: 1
+      NETWORKS: 1
+      POST: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - aionui-control
+
+  portal:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    environment:
+      AIONUI_PORTAL_PORT: 8085
+      AIONUI_PORTAL_DB_PATH: /data/portal/portal.sqlite
+      AIONUI_PORTAL_USERS_JSON: ${AIONUI_PORTAL_USERS_JSON}
+      AIONUI_PORTAL_ADMIN_TOKEN: ${AIONUI_PORTAL_ADMIN_TOKEN}
+      AIONUI_PORTAL_TICKET_SECRET: ${AIONUI_PORTAL_TICKET_SECRET}
+      AIONUI_PORTAL_CONTROL_SECRET: ${AIONUI_PORTAL_CONTROL_SECRET}
+      AIONUI_PORTAL_ALLOWED_ORIGINS: ${AIONUI_PORTAL_ALLOWED_ORIGINS}
+      AIONUI_WEB_IMAGE: ${AIONUI_WEB_IMAGE}
+      AIONUI_WEB_IMAGE_VERSION: ${AIONUI_WEB_IMAGE_VERSION}
+      AIONUI_BASE_DOMAIN: ${AIONUI_BASE_DOMAIN:-aionui.local}
+      AIONUI_PUBLIC_SCHEME: ${AIONUI_PUBLIC_SCHEME:-https}
+      AIONUI_DOCKER_HOST: docker-socket-proxy
+      AIONUI_DOCKER_PORT: 2375
+      AIONUI_DOCKER_NETWORK: aionui-runtime
+      AIONUI_USERS_DATA_ROOT: /data/users
+    volumes:
+      - portal-data:/data/portal
+      - users-data:/data/users
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.aionui-portal.rule: Host(`portal.${AIONUI_BASE_DOMAIN:-aionui.local}`)
+      traefik.http.routers.aionui-portal.entrypoints: websecure
+      traefik.http.routers.aionui-portal.tls: 'true'
+      traefik.http.services.aionui-portal.loadbalancer.server.port: '8085'
+    depends_on:
+      - docker-socket-proxy
+    networks:
+      - aionui-control
+      - aionui-runtime
+
+networks:
+  aionui-control:
+    name: aionui-control
+  aionui-runtime:
+    name: aionui-runtime
+
+volumes:
+  portal-data:
+  users-data:

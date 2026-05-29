@@ -4,11 +4,24 @@
   "description": "AIonUI Multi-tenant Container Portal",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev:web": "vite --config web/vite.config.ts",
+    "build:web": "vite build --config web/vite.config.ts",
+    "typecheck:web": "tsc -p web/tsconfig.json --noEmit"
   },
   "dependencies": {
     "better-sqlite3": "^12.4.1",
     "dockerode": "^4.0.2",
     "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@arco-design/web-react": "^2.66.1",
+    "@icon-park/react": "^1.4.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.1.6",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.4.1"
   }
 }
